@@ -1,58 +1,76 @@
 import streamlit as st
 import numpy as np
 import pyvista as pv
-import stpyvista as stpv
+from stpyvista import stpyvista
+from observation_display import obsdisplay
 
 st.set_page_config(
     page_title = 'Inhale',
     page_icon = '🫁🌳',
     initial_sidebar_state = 'expanded',
 )
-
-
+st.title('Inhale')
+st.subheader('Health assessment across biological length scales for personal pollution exposure and its mitigation')
 #Load file implementation
 #@st.cache_data
 
-# uploaded_vtu = st.file_uploader('Upload .vtu file')
-# if uploaded_vtu is not None:
-#     @st.cache_data
-#     def vtu_file_loader():
-#         uploaded_file = uploaded_vtu
-#         return uploaded_file
+uploaded_vtu = st.file_uploader('Upload .vtu file')
+vtuform = st.form(key='vtuform')
+vtu_button = vtuform.form_submit_button('Visualise .vtu')
+if uploaded_vtu:
+    mesh = pv.read(uploaded_vtu.name)
+    #Load the mesh from the uploaded .vtu file
+    scalarName = 'allSources'
+    mesh.set_active_scalars('sensorField')
+if vtu_button:
+        st.write('South Kensington, London, UK')
+        plotter = pv.Plotter(window_size=[600,600])
 
-# uploaded_file = vtu_file_loader()
+        #Add mesh to the plotter
+        cmap = 'jet'
+        single_slice = mesh.slice(normal=[0, 0, 1], origin=[0, 0, 1])
+        plotter.add_mesh(single_slice, cmap=cmap, clim = [0, 50])
+        # Camera
+        plotter.camera_position = 'xy'
+        plotter.camera.zoom(2)
 
-# st.title('South Kensington, London, UK')
-# plotter = pv.Plotter(window_size=[400,400])
+        stpyvista(plotter, key='South Kensington')
 
-# #Load the mesh from the uploaded .vtu file
-# mesh = pv.read(uploaded_file)
-# scalarName = 'nut'
-# #Add mesh to the plotter
-# plotter.add_mesh(mesh, scalars=scalarName, cmap='jet', line_width=1)
 
-# plotter.view_isometric()
-# plotter.background_color = 'white'
+#Load .csv and visualise
 
-# stpv(plotter, key='South Kensington')
+#Visualise observed data
+i = 20
+obsform = st.form(key='obsdata')
 
-# ipythreejs does not support scalar bars :(
-pv.global_theme.show_scalar_bar = False 
+uploaded_csv = obsform.file_uploader('Upload .csv data file', accept_multiple_files=True)
+filenameCollection = []
+if uploaded_csv:
+   for uploaded_file in uploaded_csv:
+       filenameCollection.append(uploaded_file.name)
 
-## Initialize a plotter object
-plotter = pv.Plotter(window_size=[400,400])
+#Slider to choose radius
 
-## Create a mesh with a cube 
-mesh = pv.Cube(center=(0,0,0))
+radius = obsform.slider(
+    'Select a radius of influence',
+    0.0, 20.0, (5.0))
 
-## Add some scalar field associated to the mesh
-mesh['myscalar'] = mesh.points[:, 2]*mesh.points[:, 0]
+st.write('Radius:', radius)
+sensorField = obsdisplay(filenameCollection, mesh, radius, i)
+zeroField = 0*mesh[scalarName]
+mesh['sensorField'] = zeroField
+mesh['sensorField'] = sensorField
 
-## Add mesh to the plotter
-plotter.add_mesh(mesh, scalars='myscalar', cmap='bwr', line_width=1)
+obs_button = obsform.form_submit_button('Visualise Observations')
 
-## Final touches
-plotter.view_isometric()
+if obs_button:
 
-## Pass a key to avoid re-rendering at each time something changes in the page
-stpv(plotter, key="pv_cube")
+    mesh.set_active_scalars('sensorField')
+    single_slice = mesh.slice(normal=[0, 0, 1], origin = [0, 0, 0.01])
+    cmap = 'jet'
+    p = pv.Plotter(window_size=[600,600])
+    p.add_mesh(single_slice, cmap=cmap, clim = [0, 50])
+    #Camera
+    p.camera_position = 'xy'
+    p.camera.zoom(1.4)
+    stpyvista(p, key='Observational data')
