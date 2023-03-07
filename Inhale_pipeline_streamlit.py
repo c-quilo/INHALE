@@ -2,7 +2,9 @@ import streamlit as st
 import numpy as np
 import pyvista as pv
 from stpyvista import stpyvista
+import vtktools
 from observation_display import obsdisplay
+from data_assimilation import dataAssimilation
 
 st.set_page_config(
     page_title = 'Inhale',
@@ -40,7 +42,7 @@ if vtu_button:
 #Load .csv and visualise
 
 #Visualise observed data
-i = 20
+i = 10
 obsform = st.form(key='obsdata')
 
 uploaded_csv = obsform.file_uploader('Upload .csv data file', accept_multiple_files=True)
@@ -74,3 +76,23 @@ if obs_button:
     p.camera_position = 'xy'
     p.camera.zoom(1.4)
     stpyvista(p, key='Observational data')
+
+#Data Assimilation
+
+da_form = st.form(key='DA')
+optionDA = da_form.radio('Choose type of DA', ('Dual', 'Everything'))
+print(optionDA)
+obs_button = da_form.form_submit_button('Data Assimilation')
+DA = dataAssimilation(mesh, optionDA, sensorField, zeroField, radius)
+mesh['DA'] = DA
+
+if obs_button:
+    mesh.set_active_scalars('DA')
+    single_slice = mesh.slice(normal=[0, 0, 1], origin = [0, 0, 0.01])
+    cmap = 'jet'
+    p = pv.Plotter(window_size=[600,600])
+    p.add_mesh(single_slice, cmap=cmap, clim = [0, 50])
+    #Camera
+    p.camera_position = 'xy'
+    p.camera.zoom(1.4)
+    stpyvista(p, key='DA')
