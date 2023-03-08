@@ -11,6 +11,7 @@ st.set_page_config(
     page_icon = '🫁🌳',
     initial_sidebar_state = 'expanded',
 )
+
 st.title('Inhale')
 st.subheader('Health assessment across biological length scales for personal pollution exposure and its mitigation')
 #Load file implementation
@@ -31,7 +32,7 @@ if vtu_button:
         #Add mesh to the plotter
         cmap = 'jet'
         single_slice = mesh.slice(normal=[0, 0, 1], origin=[0, 0, 1])
-        plotter.add_mesh(single_slice, cmap=cmap, clim = [0, 50])
+        plotter.add_mesh(single_slice, cmap=cmap, clim = [0, 10])
         # Camera
         plotter.camera_position = 'xy'
         plotter.camera.zoom(2)
@@ -50,6 +51,8 @@ filenameCollection = []
 if uploaded_csv:
    for uploaded_file in uploaded_csv:
        filenameCollection.append(uploaded_file.name)
+
+optionObs = obsform.radio('Choose observation date', ('August 2020', 'March 2021', 'October 2022'))
 
 #Slider to choose radius
 
@@ -71,7 +74,7 @@ if obs_button:
     single_slice = mesh.slice(normal=[0, 0, 1], origin = [0, 0, 0.01])
     cmap = 'jet'
     p = pv.Plotter(window_size=[600,600])
-    p.add_mesh(single_slice, cmap=cmap, clim = [0, 50])
+    p.add_mesh(single_slice, cmap=cmap, clim = [0, 30])
     #Camera
     p.camera_position = 'xy'
     p.camera.zoom(1.4)
@@ -91,7 +94,7 @@ if obs_button:
     single_slice = mesh.slice(normal=[0, 0, 1], origin = [0, 0, 0.01])
     cmap = 'jet'
     p = pv.Plotter(window_size=[600,600])
-    p.add_mesh(single_slice, cmap=cmap, clim = [0, 50])
+    p.add_mesh(single_slice, cmap=cmap, clim = [0, 10])
     #Camera
     p.camera_position = 'xy'
     p.camera.zoom(1.4)
