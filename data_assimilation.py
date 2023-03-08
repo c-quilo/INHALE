@@ -1,6 +1,5 @@
 import numpy as np
 from scipy.optimize import minimize
-import vtktools
 
 def dataAssimilation(mesh, optionDA, sensorField, zeroField, radius):
     print('DA...')

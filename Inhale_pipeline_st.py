@@ -6,7 +6,6 @@ import gmaps
 import pandas as pd
 from ipywidgets import embed
 import streamlit.components.v1 as components
-import vtktools
 from observation_display import obsdisplay
 from data_assimilation import dataAssimilation
 
