@@ -1,7 +1,10 @@
 import streamlit as st
 import numpy as np
-import pyvista as pv
+#import pyvista as pv
 import pandas as pd
+import streamlit as st
+import pydeck as pdk
+import ssl
 from observation_display import obsdisplay
 from data_assimilation import dataAssimilation
 
@@ -25,10 +28,7 @@ with c2:
 c3.radio('Choose observation date3', ['August 2020', 'March 2021', 'October 2022'])
 c1.radio('Choose observation date4', ['August 2020', 'March 2021', 'October 2022'])
 
-import streamlit as st
-import pydeck as pdk
-import pandas as pd
-import ssl
+
 
 # get rid of ssl connection error (certificates)
 try:
