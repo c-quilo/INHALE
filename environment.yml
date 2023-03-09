@@ -1,6 +1,5 @@
 name: Inhale
 channels:
-  - conda-forge
   - defaults
 dependencies:
   - aiohttp=3.8.4=py310h90acd4f_0
