@@ -1,11 +1,7 @@
 import streamlit as st
 import numpy as np
 import pyvista as pv
-from stpyvista import stpyvista
-import gmaps
 import pandas as pd
-from ipywidgets import embed
-import streamlit.components.v1 as components
 from observation_display import obsdisplay
 from data_assimilation import dataAssimilation
 
@@ -57,7 +53,7 @@ layer = pdk.Layer(
     radius_max_pixels=500,
     line_width_min_pixels=0.01,
     get_position='[Longitude, Latitude]',
-    get_fill_color=[255, 120, 0],
+    get_fill_color=[255, 20, 0],
     get_line_color=[0, 0, 0], 
 )
 
