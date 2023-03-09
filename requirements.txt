@@ -5,3 +5,4 @@ streamlit
 pyvista
 pyproj
 pydeck
+vtk
