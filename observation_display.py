@@ -4,7 +4,7 @@ from pyproj import Proj, transform
 from scipy.spatial import cKDTree
 import random
 import numpy as np
-import pyvista as pv
+#import pyvista as pv
 
 #directory = '/Users/cequilod/SouthKensington/'
 def obsdisplay(filenames, mesh, r, i):
