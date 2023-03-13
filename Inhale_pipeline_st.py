@@ -5,8 +5,16 @@ import pandas as pd
 import streamlit as st
 import pydeck as pdk
 import ssl
+import matplotlib.pyplot as plt
+import matplotlib.colors as colors
+import matplotlib.cm as cmx
+
 from observation_display import obsdisplay
 from data_assimilation import dataAssimilation
+from slice2pandas import vtu2pandas
+from slice2pandas import vtu2pandasAll
+from mapDisplay import scatterMap
+from mapDisplay import columnMap
 
 st.set_page_config(
     page_title = 'Inhale',
@@ -14,23 +22,22 @@ st.set_page_config(
     initial_sidebar_state = 'expanded',
     layout = 'wide',
 )
+c1, c2, c3, c4, c5 = st.columns([0.8, 1, 1, 1, 1])
+c1.image('./logos/INHALE.png', use_column_width=True)
+c2.image('./logos/ICL.png')
+c3.image('./logos/Surrey.png')
+c4.image('./logos/UoE.png')
+c5.image('./logos/UKRI.png')
+st.write(
+    """<style>
+    [data-testid="stHorizontalBlock"] {
+        align-items: center;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 
-st.title('Inhale')
-st.subheader('Health assessment across biological length scales for personal pollution exposure and its mitigation')
-
-input_form = st.form(key='vtuform')
-
-c1, c2, c3 = st.columns(3)
-
-c1.radio('Choose observation date1', ['August 2020', 'March 2021', 'October 2022'])
-with c2:    
-    c2.radio('Choose observation date2', ['August 2020', 'March 2021', 'October 2022'])
-c3.radio('Choose observation date3', ['August 2020', 'March 2021', 'October 2022'])
-c1.radio('Choose observation date4', ['August 2020', 'March 2021', 'October 2022'])
-
-
-
-# get rid of ssl connection error (certificates)
 try:
     _create_unverified_https_context = ssl._create_unverified_context
 except AttributeError:
@@ -38,36 +45,82 @@ except AttributeError:
 else:
     ssl._create_default_https_context = _create_unverified_https_context
 
-st.header("Map data")
-# read in data`
-df = pd.read_csv(r'pointLocations.csv', sep=',')
+with st.sidebar:
+    input_form = st.form(key='input_form')
 
-layer = pdk.Layer(
-    "ScatterplotLayer",
-    df,
-    pickable=True,
-    opacity=0.8,
-    filled=True,
-    radius_scale=5,
-    radius_min_pixels=10,
-    radius_max_pixels=500,
-    line_width_min_pixels=0.01,
-    get_position='[Longitude, Latitude]',
-    get_fill_color=[255, 20, 0],
-    get_line_color=[0, 0, 0], 
-)
+    input_form.selectbox('Choose pollutant', ['PM1', 'PM2.5', 'PM10'])
+    input_form.selectbox('Choose observation dates', ['August 2020', 'March 2021', 'October 2022'])
 
-# Set the viewport location
-view_state = pdk.ViewState(latitude=df['Latitude'].iloc[-1], longitude=df['Longitude'].iloc[-1], zoom=14, min_zoom= 10, max_zoom=30)
+    c1, c2, c3 = input_form.columns((1, 1, 1))
+    calculate_button = c1.form_submit_button('Calculate')
+    c3.form_submit_button('Reset')
 
-# Render
-r = pdk.Deck(layers=[layer], map_style='mapbox://styles/mapbox/satellite-v9',
-                initial_view_state=view_state, tooltip={"html": "<b>Location: </b> {Location} <br /> "
-                                                                "<b>Longitude: </b> {Longitude} <br /> "
-                                                                "<b>Latitude: </b>{Latitude} <br /> "
-                                                                })
-r
+########Output Form
+    output_form = st.form(key='output_form')
+    output_form.header("Map data")
+    # get rid of ssl connection error (certificates)
+    try:
+        _create_unverified_https_context = ssl._create_unverified_context
+    except AttributeError:
+        pass
+    else:
+        ssl._create_default_https_context = _create_unverified_https_context
 
-# output of clicked point should be input to a reusable list
-selectedID = st.selectbox("Choose Location", df['Location']) 
 
+    # read in data`
+
+    df = pd.read_csv(r'pointLocations.csv', sep=',')
+    r = scatterMap(df)
+    output_form.pydeck_chart(r)
+
+    # output of clicked point should be input to a reusable list
+    selectedID = output_form.selectbox("Choose Location", df['Location']) 
+    display_button = output_form.form_submit_button('Display')
+    display_all_button = output_form.form_submit_button('Display all')
+    
+##### Main layout
+
+m1, m2 = st.columns(2)
+
+if display_button:
+    midpoint = (df.loc[df['Location'] == selectedID])
+    mid_lat = np.average(midpoint['Latitude'])
+    mid_lon = np.average(midpoint['Longitude'])
+    zoom_level = 14
+
+    #data = vtu2pandas(mid_lat, mid_lon, 1)
+    #data.to_pickle(f'./points_interest_{selectedID}_1.pkl')
+    data_1m = pd.read_pickle(f'./points_interest_{selectedID}_1.pkl')
+
+    r1 = columnMap(data_1m, mid_lat, mid_lon, zoom_level)
+    m1.pydeck_chart(r1)
+
+    #data = vtu2pandas(mid_lat, mid_lon, 1.7)
+    #data.to_pickle(f'./points_interest_{selectedID}_1.7.pkl')
+    data_17m = pd.read_pickle(f'./points_interest_{selectedID}_1.7.pkl')
+
+    r2 = columnMap(data_17m, mid_lat, mid_lon, zoom_level)
+    m2.pydeck_chart(r2)
+
+    pm_values = pd.concat([data_1m['Values'], data_17m['Values']], axis=1)
+    pm_values = pm_values.set_axis(['Children', 'Adults'], axis=1, inplace=False)
+    print(pm_values)
+    st.line_chart(pm_values)
+
+if display_all_button:
+    mid_lat, mid_lon = (np.average(df["Latitude"]), np.average(df["Longitude"]))
+    zoom_level = 14
+    #data = vtu2pandasAll(df, height=1)
+    data_1m = pd.read_pickle('./points_interest_all_1.pkl')
+    r3 = columnMap(data_1m, mid_lat, mid_lon, zoom_level)
+    m1.pydeck_chart(r3)
+
+    #data = vtu2pandasAll(df, height=1.7)
+    data_17m = pd.read_pickle('./points_interest_all_1.7.pkl')
+    r4 = columnMap(data_17m, mid_lat, mid_lon, zoom_level)
+    m2.pydeck_chart(r4)
+
+    pm_values = pd.concat([data_1m['Values'], data_17m['Values']], axis=1)
+    pm_values = pm_values.set_axis(['Children', 'Adults'], axis=1, inplace=False)
+    print(pm_values)
+    st.line_chart(pm_values)

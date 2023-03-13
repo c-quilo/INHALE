@@ -4,4 +4,4 @@ scipy
 streamlit
 pyproj
 pydeck
-vtk
+pyvista
