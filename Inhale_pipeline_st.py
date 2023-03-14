@@ -90,14 +90,14 @@ if display_button:
 
     #data = vtu2pandas(mid_lat, mid_lon, 1)
     #data.to_pickle(f'./points_interest_{selectedID}_1.pkl')
-    data_1m = pd.read_pickle(f'./points_interest_{selectedID}_1.pkl')
+    data_1m = pd.read_pickle(f'./pkl/points_interest_{selectedID}_1.pkl')
 
     r1 = columnMap(data_1m, mid_lat, mid_lon, zoom_level)
     m1.pydeck_chart(r1)
 
     #data = vtu2pandas(mid_lat, mid_lon, 1.7)
     #data.to_pickle(f'./points_interest_{selectedID}_1.7.pkl')
-    data_17m = pd.read_pickle(f'./points_interest_{selectedID}_1.7.pkl')
+    data_17m = pd.read_pickle(f'./pkl/points_interest_{selectedID}_1.7.pkl')
 
     r2 = columnMap(data_17m, mid_lat, mid_lon, zoom_level)
     m2.pydeck_chart(r2)
@@ -111,12 +111,12 @@ if display_all_button:
     mid_lat, mid_lon = (np.average(df["Latitude"]), np.average(df["Longitude"]))
     zoom_level = 14
     #data = vtu2pandasAll(df, height=1)
-    data_1m = pd.read_pickle('./points_interest_all_1.pkl')
+    data_1m = pd.read_pickle('./pkl/points_interest_all_1.pkl')
     r3 = columnMap(data_1m, mid_lat, mid_lon, zoom_level)
     m1.pydeck_chart(r3)
 
     #data = vtu2pandasAll(df, height=1.7)
-    data_17m = pd.read_pickle('./points_interest_all_1.7.pkl')
+    data_17m = pd.read_pickle('./pkl/points_interest_all_1.7.pkl')
     r4 = columnMap(data_17m, mid_lat, mid_lon, zoom_level)
     m2.pydeck_chart(r4)
 

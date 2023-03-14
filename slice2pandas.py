@@ -1,11 +1,7 @@
 import pandas as pd
-import pyvista as pv
+from pyvista import pv
 import pyproj
 import numpy as np
-
-import pyvista as pv
-import numpy as np
-import pyproj
 
 def vtu2pandas(newlat, newlon, height):
     mesh = pv.read('/Users/cequilod/SK_1.vtu')
