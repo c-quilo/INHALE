@@ -49,6 +49,6 @@ def vtu2pandasAll(df, height):
         temp = temp[(temp['Latitude'] <= north) & (temp['Latitude'] >= south)]
         temp = temp[(temp['Longitude'] <= east) & (temp['Longitude'] >= west)]
         df_collect = df_collect.append(temp, ignore_index=True)
-    df_collect.to_pickle(f'./points_interest_all_{height}.pkl')
+    df_collect.to_csv(f'./points_interest_all_{height}.csv')
     return df_collect
 
