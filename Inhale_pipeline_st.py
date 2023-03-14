@@ -93,6 +93,7 @@ if display_button:
     data_1m = pd.read_csv(f'./csv/points_interest_{selectedID}_1.csv')
 
     r1 = columnMap(data_1m, mid_lat, mid_lon, zoom_level)
+    m1.write('Children (1m)')
     m1.pydeck_chart(r1)
 
     #data = vtu2pandas(mid_lat, mid_lon, 1.7)
@@ -100,6 +101,7 @@ if display_button:
     data_17m = pd.read_csv(f'./csv/points_interest_{selectedID}_1.7.csv')
 
     r2 = columnMap(data_17m, mid_lat, mid_lon, zoom_level)
+    m2.write('Adults (1.7m)')
     m2.pydeck_chart(r2)
 
     pm_values = pd.concat([data_1m['Values'], data_17m['Values']], axis=1)
@@ -113,11 +115,13 @@ if display_all_button:
     #data = vtu2pandasAll(df, height=1)
     data_1m = pd.read_csv('./csv/points_interest_all_1.csv')
     r3 = columnMap(data_1m, mid_lat, mid_lon, zoom_level)
+    m1.write('Children (1m)')
     m1.pydeck_chart(r3)
 
     #data = vtu2pandasAll(df, height=1.7)
     data_17m = pd.read_csv('./csv/points_interest_all_1.7.csv')
     r4 = columnMap(data_17m, mid_lat, mid_lon, zoom_level)
+    m2.write('Adults (1.7m)')
     m2.pydeck_chart(r4)
 
     pm_values = pd.concat([data_1m['Values'], data_17m['Values']], axis=1)
